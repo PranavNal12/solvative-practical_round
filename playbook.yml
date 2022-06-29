@@ -1,0 +1,64 @@
+---
+- hosts: all
+  tasks:
+      - name: Install aptitude
+        apt:
+          name: aptitude
+          state: latest
+          update_cache: true
+
+      - name: Install required system packages
+        apt:
+          pkg:
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - software-properties-common
+            - python3-pip
+            - python3-setuptools
+          state: latest
+          update_cache: true
+
+      - name: install apache
+        apt: 
+          name: apache2 
+          state: latest
+        become: yes  ##giving root permission to excecute the task##
+
+      - name: Installing Mysql 
+        package:
+          name: mysql-server
+          state: present
+          update_cache: yes
+        become: yes
+      
+      - name: Sets the root password
+        mysql_user:
+          name: root
+          password: root ## we must not explicitly give password on playbook rather create a .yml file and store all credentials in it and path in ansible playbook##
+          login_unix_socket: /var/run/mysqld/mysqld.sock
+        become: yes
+      
+      - name: Add Docker GPG apt Key
+        apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+          state: present
+
+      - name: Add Docker Repository
+        apt_repository:
+          repo: deb https://download.docker.com/linux/ubuntu focal stable
+          state: present
+
+      - name: Update apt and install docker-ce
+        apt:
+          name: docker-ce
+          state: latest
+          update_cache: true
+
+      - name: Install Docker Module for Python
+        pip:
+          name: docker
+
+      
+
+      
